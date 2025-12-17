@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey Slang Translator 🏒</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const HockeySlangTranslator = () => {
+      const [inputText, setInputText] = useState('');
+      const [translatedText, setTranslatedText] = useState('');
+      const [translationMode, setTranslationMode] = useState('toSlang');
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState('');
+
+      // Configure API endpoint - change this if deploying to a different URL
+      const API_BASE_URL = window.location.origin; // Uses same domain as frontend
+
+      const translateText = async () => {
+        if (!inputText.trim()) {
+          setError('Please enter some text to translate');
+          return;
+        }
+
+        setLoading(true);
+        setError('');
+        setTranslatedText('');
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/translate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              text: inputText,
+              mode: translationMode
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          setTranslatedText(data.translation);
+        } catch (err) {
+          setError(`Translation failed: ${err.message}`);
+          console.error('Translation error:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const swapModes = () => {
+        setTranslationMode(prev => prev === 'toSlang' ? 'toEnglish' : 'toSlang');
+        setInputText(translatedText);
+        setTranslatedText('');
+        setError('');
+      };
+
+      const examples = translationMode === 'toSlang' ? [
+        "He scored a beautiful goal",
+        "That was an amazing pass",
+        "The goalie made a great save",
+        "He's a really good player with great hair",
+        "I saw a really attractive girl at the game"
+      ] : [
+        "Wheel, snipe, celly boys!",
+        "Beauty bar down gino, bud",
+        "That sieve is full of holes, gonna light the lamp all day",
+        "Nice flow and silky mitts on that beautician",
+        "Ferda! Time to crush some sandos after praccy"
+      ];
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-gray-900 p-6">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-5xl font-bold text-white mb-2">
+                🏒 Hockey Slang Translator
+              </h1>
+              <p className="text-blue-200 text-lg">
+                Translate between English and Hockey Player Language
+              </p>
+            </div>
+
+            {/* Main Translator */}
+            <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6">
+              {/* Mode Toggle */}
+              <div className="flex items-center justify-center mb-6 gap-4">
+                <span className={`text-lg font-semibold ${translationMode === 'toSlang' ? 'text-blue-600' : 'text-gray-400'}`}>
+                  Normal English
+                </span>
+                <button
+                  onClick={swapModes}
+                  className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-all transform hover:scale-110"
+                  aria-label="Swap translation direction"
+                >
+                  ↔️
+                </button>
+                <span className={`text-lg font-semibold ${translationMode === 'toEnglish' ? 'text-blue-600' : 'text-gray-400'}`}>
+                  Hockey Slang
+                </span>
+              </div>
+
+              {/* Input/Output Grid */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Input Section */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {translationMode === 'toSlang' ? 'Enter Normal English:' : 'Enter Hockey Slang:'}
+                  </label>
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder={translationMode === 'toSlang' 
+                      ? "Type in normal English..." 
+                      : "Type in hockey slang..."}
+                    className="w-full h-48 p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none resize-none"
+                  />
+                </div>
+
+                {/* Output Section */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {translationMode === 'toSlang' ? 'Hockey Slang Translation:' : 'English Translation:'}
+                  </label>
+                  <div className="w-full h-48 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg overflow-y-auto">
+                    {loading ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    ) : translatedText ? (
+                      <p className="text-gray-800 whitespace-pre-wrap">{translatedText}</p>
+                    ) : (
+                      <p className="text-gray-400 italic">Translation will appear here...</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+                  <p className="text-red-700">⚠️ {error}</p>
+                </div>
+              )}
+
+              {/* Translate Button */}
+              <button
+                onClick={translateText}
+                disabled={loading || !inputText.trim()}
+                className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-lg transition-all transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
+              >
+                {loading ? 'Translating...' : 'Translate 🏒'}
+              </button>
+            </div>
+
+            {/* Examples Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Try These Examples:
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {examples.map((example, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setInputText(example)}
+                    className="text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all"
+                  >
+                    <p className="text-sm text-gray-700">{example}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Reference */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Quick Reference:
+              </h2>
+              <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <h3 className="font-semibold text-blue-600 mb-2">Common Terms:</h3>
+                  <ul className="space-y-1 text-gray-700">
+                    <li>• Biscuit = Puck</li>
+                    <li>• Celly = Celebration</li>
+                    <li>• Snipe = Great shot</li>
+                    <li>• Dangle = Skillful move</li>
+                    <li>• Chirp = Trash talk</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-blue-600 mb-2">Players:</h3>
+                  <ul className="space-y-1 text-gray-700">
+                    <li>• Beauty = Cool player</li>
+                    <li>• Grinder = Hard worker</li>
+                    <li>• Goon = Fighter</li>
+                    <li>• Pigeon = Relies on others</li>
+                    <li>• Pylon = Slow defender</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-blue-600 mb-2">Equipment & More:</h3>
+                  <ul className="space-y-1 text-gray-700">
+                    <li>• Flow/Lettuce = Hair</li>
+                    <li>• Twig = Stick</li>
+                    <li>• Bucket = Helmet</li>
+                    <li>• Bird = Girl</li>
+                    <li>• Rocket = Hot girl</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-8 text-center text-blue-200 text-sm">
+              <p>Powered by Claude AI • Sources: FloHockey, NCAA, WBS Penguins</p>
+              <p className="mt-1">Ferda! 🏒</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<HockeySlangTranslator />);
+  </script>
+</body>
+</html>
