@@ -4,247 +4,211 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hockey Slang Translator 🏒</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .animate-spin {
-      animation: spin 1s linear infinite;
-    }
-  </style>
 </head>
-<body>
-  <div id="root"></div>
+<body class="bg-gradient-to-br from-blue-900 via-blue-800 to-gray-900 min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 class="text-5xl font-bold text-white mb-2">
+        🏒 Hockey Slang Translator
+      </h1>
+      <p class="text-blue-200 text-lg">
+        100% Free • Works Offline • No API Needed!
+      </p>
+    </div>
 
-  <script type="text/babel">
-    const { useState } = React;
+    <div class="bg-white rounded-2xl shadow-2xl p-8 mb-6">
+      <div class="flex items-center justify-center mb-6 gap-4">
+        <span id="modeLabel1" class="text-lg font-semibold text-blue-600">
+          Normal English
+        </span>
+        <button id="swapBtn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-all">
+          ↔️
+        </button>
+        <span id="modeLabel2" class="text-lg font-semibold text-gray-400">
+          Hockey Slang
+        </span>
+      </div>
 
-    const HockeySlangTranslator = () => {
-      const [inputText, setInputText] = useState('');
-      const [translatedText, setTranslatedText] = useState('');
-      const [translationMode, setTranslationMode] = useState('toSlang');
-      const [loading, setLoading] = useState(false);
-      const [error, setError] = useState('');
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2" id="inputLabel">
+            Enter Normal English:
+          </label>
+          <textarea id="inputText" placeholder="Type here..." 
+            class="w-full h-48 p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none resize-none"></textarea>
+        </div>
 
-      // Configure API endpoint - change this if deploying to a different URL
-      const API_BASE_URL = window.location.origin; // Uses same domain as frontend
-
-      const translateText = async () => {
-        if (!inputText.trim()) {
-          setError('Please enter some text to translate');
-          return;
-        }
-
-        setLoading(true);
-        setError('');
-        setTranslatedText('');
-
-        try {
-          const response = await fetch(`${API_BASE_URL}/api/translate`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              text: inputText,
-              mode: translationMode
-            })
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Server error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          setTranslatedText(data.translation);
-        } catch (err) {
-          setError(`Translation failed: ${err.message}`);
-          console.error('Translation error:', err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      const swapModes = () => {
-        setTranslationMode(prev => prev === 'toSlang' ? 'toEnglish' : 'toSlang');
-        setInputText(translatedText);
-        setTranslatedText('');
-        setError('');
-      };
-
-      const examples = translationMode === 'toSlang' ? [
-        "He scored a beautiful goal",
-        "That was an amazing pass",
-        "The goalie made a great save",
-        "He's a really good player with great hair",
-        "I saw a really attractive girl at the game"
-      ] : [
-        "Wheel, snipe, celly boys!",
-        "Beauty bar down gino, bud",
-        "That sieve is full of holes, gonna light the lamp all day",
-        "Nice flow and silky mitts on that beautician",
-        "Ferda! Time to crush some sandos after praccy"
-      ];
-
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-gray-900 p-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-5xl font-bold text-white mb-2">
-                🏒 Hockey Slang Translator
-              </h1>
-              <p className="text-blue-200 text-lg">
-                Translate between English and Hockey Player Language
-              </p>
-            </div>
-
-            {/* Main Translator */}
-            <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6">
-              {/* Mode Toggle */}
-              <div className="flex items-center justify-center mb-6 gap-4">
-                <span className={`text-lg font-semibold ${translationMode === 'toSlang' ? 'text-blue-600' : 'text-gray-400'}`}>
-                  Normal English
-                </span>
-                <button
-                  onClick={swapModes}
-                  className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-all transform hover:scale-110"
-                  aria-label="Swap translation direction"
-                >
-                  ↔️
-                </button>
-                <span className={`text-lg font-semibold ${translationMode === 'toEnglish' ? 'text-blue-600' : 'text-gray-400'}`}>
-                  Hockey Slang
-                </span>
-              </div>
-
-              {/* Input/Output Grid */}
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Input Section */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {translationMode === 'toSlang' ? 'Enter Normal English:' : 'Enter Hockey Slang:'}
-                  </label>
-                  <textarea
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    placeholder={translationMode === 'toSlang' 
-                      ? "Type in normal English..." 
-                      : "Type in hockey slang..."}
-                    className="w-full h-48 p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none resize-none"
-                  />
-                </div>
-
-                {/* Output Section */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {translationMode === 'toSlang' ? 'Hockey Slang Translation:' : 'English Translation:'}
-                  </label>
-                  <div className="w-full h-48 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg overflow-y-auto">
-                    {loading ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      </div>
-                    ) : translatedText ? (
-                      <p className="text-gray-800 whitespace-pre-wrap">{translatedText}</p>
-                    ) : (
-                      <p className="text-gray-400 italic">Translation will appear here...</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                  <p className="text-red-700">⚠️ {error}</p>
-                </div>
-              )}
-
-              {/* Translate Button */}
-              <button
-                onClick={translateText}
-                disabled={loading || !inputText.trim()}
-                className="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-lg transition-all transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
-              >
-                {loading ? 'Translating...' : 'Translate 🏒'}
-              </button>
-            </div>
-
-            {/* Examples Section */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Try These Examples:
-              </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {examples.map((example, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setInputText(example)}
-                    className="text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all"
-                  >
-                    <p className="text-sm text-gray-700">{example}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Reference */}
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Quick Reference:
-              </h2>
-              <div className="grid md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <h3 className="font-semibold text-blue-600 mb-2">Common Terms:</h3>
-                  <ul className="space-y-1 text-gray-700">
-                    <li>• Biscuit = Puck</li>
-                    <li>• Celly = Celebration</li>
-                    <li>• Snipe = Great shot</li>
-                    <li>• Dangle = Skillful move</li>
-                    <li>• Chirp = Trash talk</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-blue-600 mb-2">Players:</h3>
-                  <ul className="space-y-1 text-gray-700">
-                    <li>• Beauty = Cool player</li>
-                    <li>• Grinder = Hard worker</li>
-                    <li>• Goon = Fighter</li>
-                    <li>• Pigeon = Relies on others</li>
-                    <li>• Pylon = Slow defender</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-blue-600 mb-2">Equipment & More:</h3>
-                  <ul className="space-y-1 text-gray-700">
-                    <li>• Flow/Lettuce = Hair</li>
-                    <li>• Twig = Stick</li>
-                    <li>• Bucket = Helmet</li>
-                    <li>• Bird = Girl</li>
-                    <li>• Rocket = Hot girl</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="mt-8 text-center text-blue-200 text-sm">
-              <p>Powered by Claude AI • Sources: FloHockey, NCAA, WBS Penguins</p>
-              <p className="mt-1">Ferda! 🏒</p>
-            </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2" id="outputLabel">
+            Hockey Slang Translation:
+          </label>
+          <div id="output" class="w-full h-48 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg overflow-y-auto">
+            <p class="text-gray-400 italic">Translation will appear here...</p>
           </div>
         </div>
-      );
+      </div>
+
+      <button id="translateBtn" 
+        class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-all">
+        Translate 🏒
+      </button>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Try These Examples:</h2>
+      <div id="examplesContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </div>
+  </div>
+
+  <script>
+    // Slang to English dictionary
+    const slangToEnglish = {
+      'biscuit': 'puck', 'biscy': 'puck', 'bisky': 'puck',
+      'celly': 'celebration', 'snipe': 'great shot', 'dangle': 'skillful move',
+      'chirp': 'trash talk', 'wheel': 'skate fast', 'sauce': 'pass',
+      'gino': 'goal', 'apple': 'assist', 'bar down': 'shot under crossbar',
+      'beauty': 'cool player', 'grinder': 'hard worker', 'goon': 'fighter',
+      'tendy': 'goalie', 'sieve': 'bad goalie', 'bender': 'bad skater',
+      'barn': 'arena', 'sin-bin': 'penalty box', 'pipe': 'goal post',
+      'flow': 'long hair', 'lettuce': 'hair', 'mitts': 'gloves',
+      'twig': 'hockey stick', 'bucket': 'helmet',
+      'bird': 'girl', 'rocket': 'hot girl', 'hot babe': 'hot girl',
+      'ferda': 'for the boys', 'praccy': 'practice',
+      'bud': 'friend', 'buddy': 'friend', 'guy': 'person', 'gyu': 'person'
     };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<HockeySlangTranslator />);
+    // English to slang mappings
+    const englishToSlang = {
+      'puck': 'biscuit', 'celebration': 'celly', 'great shot': 'snipe',
+      'skillful move': 'dangle', 'trash talk': 'chirp', 'skate fast': 'wheel',
+      'pass': 'sauce', 'goal': 'gino', 'assist': 'apple',
+      'cool player': 'beauty', 'hard worker': 'grinder', 'fighter': 'goon',
+      'goalie': 'tendy', 'bad goalie': 'sieve', 'bad skater': 'bender',
+      'arena': 'barn', 'penalty box': 'sin-bin', 'goal post': 'pipe',
+      'long hair': 'flow', 'hair': 'lettuce', 'gloves': 'mitts',
+      'hockey stick': 'twig', 'helmet': 'bucket',
+      'girl': 'bird', 'hot girl': 'rocket',
+      'for the boys': 'ferda', 'practice': 'praccy',
+      'friend': 'bud', 'person': 'guy',
+      // Rough translations
+      'hello': 'sup', 'hi': 'sup', 'hey': 'sup',
+      'good morning': 'sup', 'good sir': 'bud', 'sir': 'bud',
+      'how are you': 'how ya doin', 'thank you': 'thanks bud',
+      'yes': 'yup', 'no': 'nah', 'goodbye': 'later',
+      'excellent': 'beauty', 'amazing': 'unreal', 'terrible': 'brutal',
+      'absolutely': 'hell yeah', 'i agree': 'hell yeah'
+    };
+
+    let mode = 'toSlang';
+
+    const examplesEnglish = [
+      "Hello good sir, how are you?",
+      "He scored an amazing goal",
+      "That was excellent work friend",
+      "The goalie made a great save",
+      "I saw a hot girl at the game"
+    ];
+
+    const examplesSlang = [
+      "Sup bud, wheel snipe celly!",
+      "Beauty bar down gino",
+      "That tendy is a sieve",
+      "Nice flow and silky mitts bud",
+      "Ferda boys, crush sandos after praccy"
+    ];
+
+    function translate(text, toSlang) {
+      const dict = toSlang ? englishToSlang : slangToEnglish;
+      let result = text.toLowerCase();
+      
+      const sortedKeys = Object.keys(dict).sort((a, b) => b.length - a.length);
+      
+      for (let key of sortedKeys) {
+        const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+        result = result.replace(regex, dict[key]);
+      }
+      
+      if (toSlang && result.trim()) {
+        result = result.trim();
+        const lastChar = result.slice(-1);
+        const hasPunctuation = ['.', '!', '?'].includes(lastChar);
+        
+        if (hasPunctuation) {
+          result = result.slice(0, -1).trim() + ', eh' + lastChar;
+        } else {
+          result = result + ', eh';
+        }
+      }
+      
+      return result.trim();
+    }
+
+    function updateUI() {
+      const inputLabel = document.getElementById('inputLabel');
+      const outputLabel = document.getElementById('outputLabel');
+      const inputText = document.getElementById('inputText');
+      const modeLabel1 = document.getElementById('modeLabel1');
+      const modeLabel2 = document.getElementById('modeLabel2');
+
+      if (mode === 'toSlang') {
+        inputLabel.textContent = 'Enter Normal English:';
+        outputLabel.textContent = 'Hockey Slang Translation:';
+        inputText.placeholder = 'Type in normal English...';
+        modeLabel1.className = 'text-lg font-semibold text-blue-600';
+        modeLabel2.className = 'text-lg font-semibold text-gray-400';
+        populateExamples(examplesEnglish);
+      } else {
+        inputLabel.textContent = 'Enter Hockey Slang:';
+        outputLabel.textContent = 'English Translation:';
+        inputText.placeholder = 'Type in hockey slang...';
+        modeLabel1.className = 'text-lg font-semibold text-gray-400';
+        modeLabel2.className = 'text-lg font-semibold text-blue-600';
+        populateExamples(examplesSlang);
+      }
+    }
+
+    function populateExamples(examples) {
+      const container = document.getElementById('examplesContainer');
+      container.innerHTML = examples.map(ex => `
+        <button onclick="document.getElementById('inputText').value = '${ex.replace(/'/g, "\\'")}'"
+          class="text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all">
+          <p class="text-sm text-gray-700">${ex}</p>
+        </button>
+      `).join('');
+    }
+
+    document.getElementById('swapBtn').addEventListener('click', () => {
+      mode = mode === 'toSlang' ? 'toEnglish' : 'toSlang';
+      const input = document.getElementById('inputText').value;
+      const output = document.getElementById('output').textContent;
+      
+      document.getElementById('inputText').value = output !== 'Translation will appear here...' ? output : '';
+      document.getElementById('output').innerHTML = '<p class="text-gray-400 italic">Translation will appear here...</p>';
+      
+      updateUI();
+    });
+
+    document.getElementById('translateBtn').addEventListener('click', () => {
+      const input = document.getElementById('inputText').value;
+      const output = document.getElementById('output');
+      
+      if (!input.trim()) {
+        output.innerHTML = '<p class="text-red-500">Please enter some text!</p>';
+        return;
+      }
+
+      try {
+        const translated = translate(input, mode === 'toSlang');
+        output.innerHTML = `<p class="text-gray-800 whitespace-pre-wrap">${translated}</p>`;
+      } catch (error) {
+        output.innerHTML = `<p class="text-red-500">Translation error: ${error.message}</p>`;
+        console.error('Translation error:', error);
+      }
+    });
+
+    // Initialize
+    updateUI();
   </script>
 </body>
 </html>
