@@ -188,9 +188,9 @@
         // Don't add "eh" to very short phrases or single words
         if (!isShortResponse && wordCount >= 3) {
           if (hasPunctuation) {
-            result = result.slice(0, -1).trim() + ', eh' + lastChar;
+            result = result.slice(0, -1).trim() + '' + lastChar;
           } else {
-            result = result + ', eh';
+            result = result + '';
           }
         }
       }
